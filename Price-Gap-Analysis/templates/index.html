@@ -1,0 +1,1138 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Gap Analysis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: #f5f7fa;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        h1, h2, h3 {
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        
+        h3 {
+            font-size: 1.4rem;
+            color: var(--secondary);
+        }
+        
+        p {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--secondary);
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+            background-color: rgba(76, 201, 240, 0.05);
+        }
+        
+        .upload-area:hover {
+            background-color: rgba(76, 201, 240, 0.1);
+            border-color: var(--primary);
+        }
+        
+        .upload-area.highlight {
+            background-color: rgba(76, 201, 240, 0.2);
+            border-color: var(--primary);
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--light);
+            color: var(--secondary);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .loader {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: var(--primary);
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .results-container {
+            display: none;
+        }
+        
+        .result-card {
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+            border: 1px solid var(--border);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .chart-container {
+            margin-top: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .chart-container img {
+            width: 100%;
+            display: block;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+        
+        .alert-danger {
+            background-color: #fee2e2;
+            color: var(--danger);
+            border-left: 4px solid var(--danger);
+        }
+        
+        .alert-warning {
+            background-color: #fef3c7;
+            color: var(--warning);
+            border-left: 4px solid var(--warning);
+        }
+        
+        .alert-success {
+            background-color: #d1fae5;
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+        
+        .alert-icon {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .options-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .option-card {
+            flex: 1;
+            min-width: 200px;
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .option-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .option-card.selected {
+            border-color: var(--primary);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+        
+        .option-icon {
+            font-size: 32px;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        .option-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        
+        .option-description {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+        
+        footer {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 50px;
+        }
+        
+        /* How to Use Section */
+        .how-to-use {
+            background-color: #f0f9ff;
+            padding: 40px 0;
+            margin: 40px 0;
+            border-radius: 12px;
+        }
+        
+        .step-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .step-card {
+            flex: 1;
+            min-width: 250px;
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .step-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .step-number {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background-color: var(--primary);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .step-title {
+            margin-top: 10px;
+            margin-bottom: 15px;
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .requirements-list {
+            list-style-type: none;
+            margin: 20px 0;
+            padding: 0;
+        }
+        
+        .requirements-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+        }
+        
+        .requirements-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .requirements-list li i {
+            color: var(--primary);
+            margin-right: 10px;
+        }
+        
+        .file-format-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .file-format-title {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .file-format-title i {
+            margin-right: 8px;
+        }
+        
+        .file-format-description {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+        
+        .tips-container {
+            background-color: #f0f9ff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .tips-title {
+            display: flex;
+            align-items: center;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .tips-title i {
+            margin-right: 10px;
+        }
+        
+        .tips-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        .tips-list li {
+            padding: 8px 0;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .tips-list li i {
+            color: var(--success);
+            margin-right: 10px;
+            margin-top: 5px;
+        }
+        
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .slide-up {
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .stat-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .options-container {
+                flex-direction: column;
+            }
+            
+            .step-container {
+                flex-direction: column;
+            }
+        }
+        
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+            scrollbar-width: none; /* Firefox */
+        }
+        
+        .tab-navigation::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Edge */
+        }
+        
+        .tab-button {
+            padding: 15px 25px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-light);
+            position: relative;
+            white-space: nowrap;
+        }
+        
+        .tab-button:after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--primary);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .tab-button.active {
+            color: var(--primary);
+        }
+        
+        .tab-button.active:after {
+            transform: scaleX(1);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><i class="fas fa-chart-line"></i> Price Gap Analysis</h1>
+            <div>
+                <button class="btn btn-secondary" id="helpBtn"><i class="fas fa-question-circle"></i> Help</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-button active" data-tab="dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</button>
+            <button class="tab-button" data-tab="how-to-use"><i class="fas fa-book"></i> How to Use</button>
+            <button class="tab-button" data-tab="requirements"><i class="fas fa-list-check"></i> File Requirements</button>
+            <button class="tab-button" data-tab="faq"><i class="fas fa-question-circle"></i> FAQ</button>
+        </div>
+        
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="card fade-in">
+                <h2>Welcome to Price Gap Analysis</h2>
+                <p><strong>Goal:</strong> Forecast price trends and quantify the price gap between Seller-Listed and Customer-Paid prices to recommend a fair price.</p>
+                <p>This project analyzes market data to identify trends and discrepancies in pricing. By understanding the difference between what sellers ask for and what customers ultimately pay, we can provide recommendations for fair and competitive pricing.</p>
+            </div>
+            
+            <h2 class="slide-up">Analysis Options</h2>
+            <div class="options-container slide-up">
+                <div class="option-card" data-option="basic">
+                    <div class="option-icon"><i class="fas fa-chart-bar"></i></div>
+                    <div class="option-title">Basic Analysis</div>
+                    <div class="option-description">Simple price gap analysis with basic statistics</div>
+                </div>
+                <div class="option-card" data-option="advanced">
+                    <div class="option-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="option-title">Advanced Analysis</div>
+                    <div class="option-description">Detailed forecasting with trend analysis</div>
+                </div>
+                <div class="option-card" data-option="comprehensive">
+                    <div class="option-icon"><i class="fas fa-brain"></i></div>
+                    <div class="option-title">Comprehensive Analysis</div>
+                    <div class="option-description">Full market analysis with AI-powered recommendations</div>
+                </div>
+            </div>
+            
+            <h2 class="slide-up">Upload Your Data</h2>
+            <div id="uploadArea" class="upload-area slide-up">
+                <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                <h3>Drag & Drop Your File Here</h3>
+                <p>or</p>
+                <button class="btn btn-primary" id="browseBtn">Browse Files</button>
+                <input type="file" id="fileInput" class="file-input" accept=".csv, .xlsx, .xls">
+                <p class="upload-info">Supported formats: CSV, XLSX, XLS</p>
+            </div>
+            
+            <div id="fileInfo" class="card" style="display: none;">
+                <h3><i class="fas fa-file-alt"></i> <span id="fileName"></span></h3>
+                <p>Ready to analyze. Click the button below to start.</p>
+                <button id="analyzeBtn" class="btn btn-primary"><i class="fas fa-chart-pie"></i> Analyze Data</button>
+                <button id="cancelBtn" class="btn btn-danger"><i class="fas fa-times"></i> Cancel</button>
+            </div>
+            
+            <div id="loader" class="loader">
+                <div class="spinner"></div>
+                <h3>Analyzing Your Data</h3>
+                <p>This may take a moment...</p>
+            </div>
+            
+            <div id="errorContainer" style="display: none;" class="alert alert-danger fade-in">
+                <div class="alert-icon"><i class="fas fa-exclamation-circle"></i></div>
+                <div id="errorMessage"></div>
+            </div>
+            
+            <div id="resultsContainer" class="results-container">
+                <h2 class="slide-up">Analysis Results</h2>
+                
+                <div class="card result-card slide-up">
+                    <h3><i class="fas fa-chart-line"></i> Price Forecast</h3>
+                    <div class="chart-container">
+                        <img id="forecastPlot" alt="Price Forecast Plot">
+                    </div>
+                </div>
+                
+                <div class="card result-card slide-up">
+                    <h3><i class="fas fa-tag"></i> Fair Price Recommendation</h3>
+                    <div class="stat-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Recommended Fair Price</div>
+                            <div class="stat-value" id="fairPrice">$0.00</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Forecasted Average Price</div>
+                            <div class="stat-value" id="forecastPrice">$0.00</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card result-card slide-up">
+                    <h3><i class="fas fa-balance-scale"></i> Price Gap Statistics</h3>
+                    <div class="stat-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Mean Gap</div>
+                            <div class="stat-value" id="meanGap">$0.00</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Median Gap</div>
+                            <div class="stat-value" id="medianGap">$0.00</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Standard Deviation</div>
+                            <div class="stat-value" id="stdDev">$0.00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- How to Use Tab -->
+        <div id="how-to-use" class="tab-content">
+            <div class="card fade-in">
+                <h2><i class="fas fa-book"></i> How to Use This Dashboard</h2>
+                <p>Welcome to the Price Gap Analysis Dashboard! This tool helps you analyze the difference between seller-listed prices and customer-paid prices to optimize your pricing strategy. Follow these simple steps to get started:</p>
+            </div>
+            
+            <div class="step-container">
+                <div class="step-card fade-in">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">Choose Analysis Type</h3>
+                    <p>Select the type of analysis that best suits your needs:</p>
+                    <ul class="requirements-list">
+                        <li><i class="fas fa-check-circle"></i> <strong>Basic Analysis:</strong> Quick overview of price gaps</li>
+                        <li><i class="fas fa-check-circle"></i> <strong>Advanced Analysis:</strong> Detailed trends and forecasting</li>
+                        <li><i class="fas fa-check-circle"></i> <strong>Comprehensive Analysis:</strong> In-depth analysis with AI recommendations</li>
+                    </ul>
+                </div>
+                
+                <div class="step-card fade-in">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">Prepare Your Data</h3>
+                    <p>Ensure your data file meets these requirements:</p>
+                    <ul class="requirements-list">
+                        <li><i class="fas fa-check-circle"></i> CSV or Excel format (.csv, .xlsx, .xls)</li>
+                        <li><i class="fas fa-check-circle"></i> Contains required columns (see File Requirements tab)</li>
+                        <li><i class="fas fa-check-circle"></i> Data is clean and consistent</li>
+                    </ul>
+                </div>
+                
+                <div class="step-card fade-in">
+                    <div class="step-number">3</div>
+                    <h3 class="step-title">Upload Your File</h3>
+                    <p>Upload your prepared data file:</p>
+                    <ul class="requirements-list">
+                        <li><i class="fas fa-check-circle"></i> Drag and drop your file into the upload area</li>
+                        <li><i class="fas fa-check-circle"></i> Or click "Browse Files" to select from your computer</li>
+                        <li><i class="fas fa-check-circle"></i> Verify the file name appears correctly</li>
+                    </ul>
+                </div>
+                
+                <div class="step-card fade-in">
+                    <div class="step-number">4</div>
+                    <h3 class="step-title">Analyze and Review Results</h3>
+                    <p>Process your data and interpret the results:</p>
+                    <ul class="requirements-list">
+                        <li><i class="fas fa-check-circle"></i> Click "Analyze Data" to process your file</li>
+                        <li><i class="fas fa-check-circle"></i> Review the price forecast chart</li>
+                        <li><i class="fas fa-check-circle"></i> Check the fair price recommendation</li>
+                        <li><i class="fas fa-check-circle"></i> Examine price gap statistics</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3><i class="fas fa-lightbulb"></i> Tips for Best Results</h3>
+                <div class="tips-container">
+                    <div class="tips-title">
+                        <i class="fas fa-star"></i>
+                        <h4>Maximize Your Analysis</h4>
+                    </div>
+                    <ul class="tips-list">
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span><strong>Use recent data</strong> - Include your most recent transactions for accurate forecasting</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span><strong>Ensure complete records</strong> - Files with missing data may produce less accurate results</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span><strong>Try different analysis types</strong> - Compare results from basic, advanced, and comprehensive analyses</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span><strong>Regular analysis</strong> - Run the analysis monthly to track pricing trends over time</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- File Requirements Tab -->
+        <div id="requirements" class="tab-content">
+            <div class="card fade-in">
+                <h2><i class="fas fa-list-check"></i> File Requirements</h2>
+                <p>To ensure accurate analysis, your data file must meet the following requirements:</p>
+            </div>
+            
+            <div class="card fade-in">
+                <h3><i class="fas fa-file-alt"></i> Supported File Formats</h3>
+                <div class="file-format-card">
+                    <div class="file-format-title"><i class="fas fa-file-csv"></i> CSV Files (.csv)</div>
+                    <div class="file-format-description">Comma-separated values file with UTF-8 or Latin-1 encoding</div>
+                </div>
+                <div class="file-format-card">
+                    <div class="file-format-title"><i class="fas fa-file-excel"></i> Excel Files (.xlsx, .xls)</div>
+                    <div class="file-format-description">Microsoft Excel spreadsheets (both modern and legacy formats)</div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3><i class="fas fa-table"></i> Required Columns</h3>
+                <p>Your file must contain the following columns with the exact names listed:</p>
+                <table class="requirements-table" style="width:100%; border-collapse: collapse; margin-top: 15px;">
+                    <thead>
+                        <tr style="background-color: var(--primary); color: white;">
+                            <th style="padding: 12px; text-align: left; border: 1px solid var(--border);">Column Name</th>
+                            <th style="padding: 12px; text-align: left; border: 1px solid var(--border);">Description</th>
+                            <th style="padding: 12px; text-align: left; border: 1px solid var(--border);">Data Type</th>
+                            <th style="padding: 12px; text-align: left; border: 1px solid var(--border);">Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background-color: white;">
+                            <td style="padding: 12px; border: 1px solid var(--border);"><strong>Invoice</strong></td>
+                            <td style="padding: 12px; border: 1px solid var(--border);">Invoice number/identifier</td>
+                            <td style="padding: 12px; border: 1px solid var(--border);">String/Number</td>
+                            <td style="padding: 12px; border: 1px solid var(--border);">"536365" or 536365</td>
+                        </tr>
+                        <tr style="background-color: #f8f9fa;">
+                            <td style="padding: 12px; border: 1px solid var(--border);"><strong>StockCode</strong></td>
+                            <td style="padding: 12px; border: 1px solid var(--border);">Product code/identifier</td>
+                            <td style="padding: 12px; border: 1px solid var(--border);">String/Number</td>
+                            <td style="padding: 12px; border: 1px solid var(--border);">"85123A"</td>
+                        </tr>
+                        <tr style="background-color: white;">
+                            <td style="padding: 12px; border: 1px solid var(--border);"><strong>Description</strong></td>
+                            <td style="padding: 12px; border: 1px solid var(--border);">Product description</td>
+                            <td style="padding: 12px; border: 1px solid var(--border);">String</td>
+                            <td style="padding: 12px; border: 1px solid var(--border);">"WHITE HANGING HEART T-LIGHT HOLDER"</td>
+                        </tr>
+                        <tr style="background-color: #f8f9fa;">
+                            <td style="padding: 12px; border: 1px solid var(--border);"><strong>Quantity</strong></td>
+                            <td style="padding: 12px; border: 1px solid var(--border);">Number of items purchased</td>
+                            <td style="padding: 12px; border: 1px solid var(--border);">Number (positive)</td>
+                            <td style="padding: 12px; border: 1px solid var(--border);">6</td>
+                        </tr>
+                        <tr style="background-color: white;">
+                            <td style="padding: 12px; border: 1px solid var(--border);"><strong>InvoiceDate</strong></td>
+                            <td style="padding: 12px; border: 1px solid var(--border);">Date of transaction</td>
+                            <td style="padding: 12px; border: 1px solid var(--border);">Date/Datetime</td>
+                            <td style="padding: 12px; border: 1px solid var(--border);">"12/1/2010 8:26" or "2010-12-01"</td>
+                        </tr>
+                        <tr style="background-color: #f8f9fa;">
+                            <td style="padding: 12px; border: 1px solid var(--border);"><strong>Price</strong></td>
+                            <td style="padding: 12px; border: 1px solid var(--border);">Unit price of product</td>
+                            <td style="padding: 12px; border: 1px solid var(--border);">Number (positive)</td>
+                            <td style="padding: 12px; border: 1px solid var(--border);">2.55</td>
+                        </tr>
+                        <tr style="background-color: white;">
+                            <td style="padding: 12px; border: 1px solid var(--border);"><strong>Customer ID</strong></td>
+                            <td style="padding: 12px; border: 1px solid var(--border);">Customer identifier</td>
+                            <td style="padding: 12px; border: 1px solid var(--border);">String/Number</td>
+                            <td style="padding: 12px; border: 1px solid var(--border);">17850</td>
+                        </tr>
+                        <tr style="background-color: #f8f9fa;">
+                            <td style="padding: 12px; border: 1px solid var(--border);"><strong>Country</strong></td>
+                            <td style="padding: 12px; border: 1px solid var(--border);">Country of customer</td>
+                            <td style="padding: 12px; border: 1px solid var(--border);">String</td>
+                            <td style="padding: 12px; border: 1px solid var(--border);">"United Kingdom"</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="card fade-in">
+                <h3><i class="fas fa-exclamation-triangle"></i> Data Quality Requirements</h3>
+                <p>For the best analysis results, ensure your data meets these quality standards:</p>
+                <ul class="requirements-list">
+                    <li><i class="fas fa-check-circle"></i> <strong>No missing values</strong> in required columns</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Positive values</strong> for Quantity and Price</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Valid date format</strong> for InvoiceDate</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Consistent units</strong> for Price (e.g., all in USD)</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Sufficient data volume</strong> - at least 100 transactions for meaningful analysis</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Recent data</strong> - include recent transactions for accurate forecasting</li>
+                </ul>
+            </div>
+            
+            <div class="card fade-in">
+                <h3><i class="fas fa-download"></i> Sample File</h3>
+                <p>Not sure if your data is formatted correctly? Download our sample file to see the expected format:</p>
+                <button class="btn btn-primary"><i class="fas fa-file-download"></i> Download Sample CSV</button>
+                <button class="btn btn-primary"><i class="fas fa-file-excel"></i> Download Sample Excel</button>
+            </div>
+        </div>
+        
+        <!-- FAQ Tab -->
+        <div id="faq" class="tab-content">
+            <div class="card fade-in">
+                <h2><i class="fas fa-question-circle"></i> Frequently Asked Questions</h2>
+                <p>Find answers to common questions about using the Price Gap Analysis Dashboard.</p>
+            </div>
+            
+            <div class="card fade-in">
+                <h3>General Questions</h3>
+                
+                <div style="margin-top: 20px;">
+                    <h4><i class="fas fa-question-circle"></i> What is price gap analysis?</h4>
+                    <p>Price gap analysis examines the difference between the price sellers list for products and what customers actually pay. This helps businesses optimize pricing strategies to maximize revenue while remaining competitive.</p>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <h4><i class="fas fa-question-circle"></i> How often should I run this analysis?</h4>
+                    <p>For best results, run the analysis monthly or quarterly to track pricing trends over time. More frequent analysis may be beneficial during periods of high market volatility or seasonal changes.</p>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <h4><i class="fas fa-question-circle"></i> Which analysis type should I choose?</h4>
+                    <p>Start with Basic Analysis if you're new to price analysis. Advanced Analysis provides more detailed forecasting, while Comprehensive Analysis offers the most in-depth insights with AI-powered recommendations. You can compare results from different types.</p>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3>Technical Questions</h3>
+                
+                <div style="margin-top: 20px;">
+                    <h4><i class="fas fa-question-circle"></i> What if my file doesn't have all the required columns?</h4>
+                    <p>The analysis requires all the specified columns to function properly. If your data is missing some columns, consider adding placeholder values or mapping your existing columns to match the required format.</p>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <h4><i class="fas fa-question-circle"></i> Is there a file size limit?</h4>
+                    <p>Yes, the maximum file size is 16MB. If your file is larger, consider filtering the data to include only the most recent or relevant transactions.</p>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <h4><i class="fas fa-question-circle"></i> How is the fair price calculated?</h4>
+                    <p>The fair price recommendation is calculated based on historical customer-paid prices, market trends, and forecasted future prices. The algorithm considers seasonal patterns and price elasticity to suggest an optimal price point.</p>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <h4><i class="fas fa-question-circle"></i> What if I get an error during analysis?</h4>
+                    <p>Common errors include missing columns, invalid data formats, or insufficient data. Check the error message for specific guidance, ensure your file meets all requirements, and try again. If problems persist, try using our sample file format.</p>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3>Need More Help?</h3>
+                <p>If you have questions not covered here, please contact our support team:</p>
+                <button class="btn btn-primary"><i class="fas fa-envelope"></i> Contact Support</button>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>© 2023 Price Gap Analysis Tool</p>
+        </div>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const browseBtn = document.getElementById('browseBtn');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const loader = document.getElementById('loader');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const errorContainer = document.getElementById('errorContainer');
+        const errorMessage = document.getElementById('errorMessage');
+        const optionCards = document.querySelectorAll('.option-card');
+        const helpBtn = document.getElementById('helpBtn');
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        // Selected option
+        let selectedOption = 'basic';
+        let selectedFile = null;
+        
+        // Tab Navigation
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons and contents
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                // Add active class to clicked button and corresponding content
+                button.classList.add('active');
+                document.getElementById(button.dataset.tab).classList.add('active');
+            });
+        });
+        
+        // Event Listeners
+        browseBtn.addEventListener('click', () => fileInput.click());
+        
+        fileInput.addEventListener('change', handleFileSelect);
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('highlight');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('highlight');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('highlight');
+            
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileSelect(e);
+            }
+        });
+        
+        cancelBtn.addEventListener('click', () => {
+            fileInfo.style.display = 'none';
+            uploadArea.style.display = 'block';
+            fileInput.value = '';
+            selectedFile = null;
+        });
+        
+        analyzeBtn.addEventListener('click', analyzeData);
+        
+        optionCards.forEach(card => {
+            card.addEventListener('click', () => {
+                // Remove selected class from all cards
+                optionCards.forEach(c => c.classList.remove('selected'));
+                // Add selected class to clicked card
+                card.classList.add('selected');
+                // Update selected option
+                selectedOption = card.dataset.option;
+            });
+        });
+        
+        // Select basic option by default
+        document.querySelector('[data-option="basic"]').classList.add('selected');
+        
+        helpBtn.addEventListener('click', () => {
+            // Switch to How to Use tab
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            document.querySelector('[data-tab="how-to-use"]').classList.add('active');
+            document.getElementById('how-to-use').classList.add('active');
+        });
+        
+        // Functions
+        function handleFileSelect(e) {
+            const file = e.target.files[0] || e.dataTransfer.files[0];
+            
+            if (!file) return;
+            
+            // Check file type
+            const validTypes = ['text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            
+            if (!validTypes.includes(file.type) && !['csv', 'xls', 'xlsx'].includes(fileExtension)) {
+                showError('Please upload a valid CSV or Excel file.');
+                return;
+            }
+            
+            // Check file size
+            if (file.size > 16 * 1024 * 1024) { // 16MB
+                showError('File size exceeds the 16MB limit. Please upload a smaller file.');
+                return;
+            }
+            
+            // File is valid
+            selectedFile = file;
+            fileName.textContent = file.name;
+            uploadArea.style.display = 'none';
+            fileInfo.style.display = 'block';
+            hideError();
+        }
+        
+        function analyzeData() {
+            if (!selectedFile) {
+                showError('Please select a file first.');
+                return;
+            }
+            
+            // Hide file info and show loader
+            fileInfo.style.display = 'none';
+            loader.style.display = 'block';
+            hideError();
+            
+            // Create form data
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            formData.append('analysis_type', selectedOption);
+            
+            // Send request
+            fetch('/api/price_analysis', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.error || 'An error occurred during analysis');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Hide loader
+                loader.style.display = 'none';
+                
+                // Display results
+                document.getElementById('forecastPlot').src = `data:image/png;base64,${data.forecast_plot}`;
+                document.getElementById('fairPrice').textContent = `$${data.fair_price_recommendation.toFixed(2)}`;
+                document.getElementById('forecastPrice').textContent = `$${data.avg_forecast_price.toFixed(2)}`;
+                document.getElementById('meanGap').textContent = `$${data.price_gap_stats.mean.toFixed(2)}`;
+                document.getElementById('medianGap').textContent = `$${data.price_gap_stats.median.toFixed(2)}`;
+                document.getElementById('stdDev').textContent = `$${data.price_gap_stats.std_dev.toFixed(2)}`;
+                
+                // Show results container with animation
+                resultsContainer.style.display = 'block';
+                
+                // Add animation classes to result cards
+                const resultCards = document.querySelectorAll('.result-card');
+                resultCards.forEach((card, index) => {
+                    setTimeout(() => {
+                        card.classList.add('slide-up');
+                    }, index * 100);
+                });
+                
+                // Scroll to results
+                resultsContainer.scrollIntoView({ behavior: 'smooth' });
+            })
+            .catch(error => {
+                // Hide loader
+                loader.style.display = 'none';
+                // Show upload area again
+                uploadArea.style.display = 'block';
+                // Show error
+                showError(error.message || 'An error occurred during analysis');
+            });
+        }
+        
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorContainer.style.display = 'flex';
+        }
+        
+        function hideError() {
+            errorContainer.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

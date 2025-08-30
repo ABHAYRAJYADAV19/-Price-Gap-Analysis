@@ -1,0 +1,11 @@
+pandas
+openpyxl
+plotly
+streamlit
+scikit-learn
+seaborn
+squarify
+kaleido
+torch
+holidays
+statsmodels
